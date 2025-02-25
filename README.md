@@ -1,4 +1,4 @@
-# gemm
+# study-gemm
 
 Study of GEMM (General Matrix Multiplication) implementation
 

@@ -1,36 +1,22 @@
 #include <stdio.h>
+#include <time.h>
 
 #include "gemm.h"
-
-void print_matrix(const float* array, const size_t m, const size_t n) {
-    for (size_t i = 0; i < m; ++i) {
-        for (size_t j = 0; j < n; ++j) {
-            printf("%.3f", array[i * m + j]);
-            if (j < n - 1) {
-                putchar(',');
-            }
-        }
-        putchar('\n');
-    }
-}
+#include "matrix.h"
 
 int main(void) {
-    float a[2 * 3] = {
-        1, 2, 3,
-        4, 5, 6
-    };
+    rand_seed((unsigned)time(NULL));
 
-    float b[3 * 2] = {
-        9, 10,
-        11,12,
-        13, 14
-    };
+    Matrix a = MAT_ZEROS(2, 3);
+    mat_rand_norm(&a);
 
-    float c[2 * 2];
+    Matrix b = MAT_ZEROS(3, 2);
+    mat_rand_norm(&b);
 
-    gemm(a, 2, 3, b, 2, c);
+    Matrix c = MAT_ZEROS(2, 2);
+    gemm(a.data, a.rows, a.cols, b.data, b.cols, c.data);
 
-    print_matrix(c, 2, 2);
+    mat_print(&c);
 
     return 0;
 }
