@@ -15,6 +15,7 @@ add_executable(
     test/test.c
     src/gemm.c
     src/matrix.c
+    src/timer.c
 )
 
 target_include_directories(
