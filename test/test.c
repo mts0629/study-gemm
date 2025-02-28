@@ -16,11 +16,12 @@ int main(void) {
 
     Matrix c = MAT_ZEROS(512, 512);
 
-    double ms;
-    GET_WALL_TIME(gemm(a.data, a.rows, a.cols, b.data, b.cols, c.data), cvt2msec, ms);
+    struct timespec elapsed;
+    MEASURE_AVG_WALL_TIME(
+        elapsed, gemm(a.data, a.rows, a.cols, b.data, b.cols, c.data), 10
+    );
 
-    // mat_print(&c);
-    printf("Elapsed: %lf[ms]\n", ms);
+    printf("Elapsed: %lf[ms]\n", cvt2msec(elapsed));
 
     return 0;
 }

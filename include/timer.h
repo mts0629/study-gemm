@@ -21,13 +21,29 @@ static inline double cvt2sec(struct timespec time) {
     return (double)(time.tv_sec * 1000000000 + time.tv_nsec) / 1000000000;
 }
 
-#define GET_WALL_TIME(func, cvt_func, wall_time)                  \
+#define MEASURE_WALL_TIME(wall_time, func)            \
+    {                                                 \
+        struct timespec start, end;                   \
+        clock_gettime(CLOCK_MONOTONIC, &start);       \
+        (func);                                       \
+        clock_gettime(CLOCK_MONOTONIC, &end);         \
+        (wall_time) = get_elapsed_time(&start, &end); \
+    }
+
+#define MEASURE_AVG_WALL_TIME(avg_wall_time, func, n)             \
     {                                                             \
         struct timespec start, end;                               \
         clock_gettime(CLOCK_MONOTONIC, &start);                   \
-        (func);                                                   \
+        for (int i = 0; i < (n); ++i) {                           \
+            (func);                                               \
+        }                                                         \
         clock_gettime(CLOCK_MONOTONIC, &end);                     \
-        (wall_time) = (cvt_func)(get_elapsed_time(&start, &end)); \
+        struct timespec elapsed = get_elapsed_time(&start, &end); \
+        unsigned long total_nsec =                                \
+            elapsed.tv_sec * 1000000000 + elapsed.tv_nsec;        \
+        total_nsec /= (n);                                        \
+        (avg_wall_time).tv_sec = total_nsec / 1000000000;         \
+        (avg_wall_time).tv_nsec = total_nsec % 1000000000;        \
     }
 
 #endif
