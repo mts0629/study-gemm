@@ -9,8 +9,14 @@ typedef struct Matrix {
     float* data;
 } Matrix;
 
+#define ARRAY(...) \
+    { __VA_ARGS__ }
+
+#define MAT_FROM_ARRAY(rows, cols, array) \
+    (Matrix) { (rows), (cols), (float[(rows) * (cols)]) array }
+
 #define MAT_ZEROS(rows, cols)                          \
-    {                                                  \
+    (Matrix) {                                         \
         (rows), (cols), (float[(rows) * (cols)]) { 0 } \
     }
 

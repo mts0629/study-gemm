@@ -23,3 +23,16 @@ target_include_directories(
     PRIVATE
     ${PROJECT_SOURCE_DIR}/include
 )
+
+add_executable(
+    verification
+    test/verification.c
+    src/gemm.c
+    src/matrix.c
+)
+
+target_include_directories(
+    verification
+    PRIVATE
+    ${PROJECT_SOURCE_DIR}/include
+)
