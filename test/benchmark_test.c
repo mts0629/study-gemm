@@ -18,8 +18,10 @@ int main(void) {
 
     struct timespec elapsed;
     MEASURE_AVG_WALL_TIME(
-        elapsed, gemm(a.data, a.rows, a.cols, b.data, b.cols, c.data), 10
-    );
+        elapsed,
+        sgemm(GEMM_ROW_MAJOR, GEMM_NOTRANS, GEMM_NOTRANS, a.rows, b.cols,
+              a.cols, 1.0, a.data, a.cols, b.data, b.cols, 1.0, c.data, c.cols),
+        10);
 
     printf("Elapsed: %lf[ms]\n", cvt2msec(elapsed));
 

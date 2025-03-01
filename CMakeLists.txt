@@ -11,15 +11,15 @@ set(C_STANDARD_REQUIRED ON)
 add_compile_options(-Wall -Wextra -Wpedantic -Werror)
 
 add_executable(
-    test
-    test/test.c
+    benchmark_test
+    test/benchmark_test.c
     src/gemm.c
     src/matrix.c
     src/timer.c
 )
 
 target_include_directories(
-    test
+    benchmark_test
     PRIVATE
     ${PROJECT_SOURCE_DIR}/include
 )
