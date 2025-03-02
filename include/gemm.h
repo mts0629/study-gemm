@@ -8,10 +8,7 @@ typedef enum {
     // GEMM_COL_MAJOR
 } GEMM_ORDER;
 
-typedef enum {
-    GEMM_NOTRANS,
-    // GEMM_TRANS
-} GEMM_TRANSPOSE;
+typedef enum { GEMM_NOTRANS, GEMM_TRANS } GEMM_TRANSPOSE;
 
 void sgemm(GEMM_ORDER order, GEMM_TRANSPOSE trans_a, GEMM_TRANSPOSE trans_b,
            const size_t M, const size_t N, const size_t K, const float alpha,
