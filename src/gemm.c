@@ -7,19 +7,16 @@ void sgemm(GEMM_ORDER order, GEMM_TRANSPOSE trans_a, GEMM_TRANSPOSE trans_b,
            const float* a, const size_t lda, const float* b, const size_t ldb,
            const float beta, float* c, const size_t ldc) {
     assert(order == GEMM_ROW_MAJOR);
-    (void)lda;
-    (void)ldb;
-    (void)ldc;
 
     if ((trans_a == GEMM_TRANS) && (trans_b == GEMM_NOTRANS)) {
         for (size_t i = 0; i < M; ++i) {
             for (size_t j = 0; j < N; ++j) {
                 float sum = 0.0f;
                 for (size_t k = 0; k < K; ++k) {
-                    sum += a[k * M + i] * b[k * N + j];
+                    sum += a[k * lda + i] * b[k * ldb + j];
                 }
-                c[i * N + j] *= beta;
-                c[i * N + j] += alpha * sum;
+                c[i * ldc + j] *= beta;
+                c[i * ldc + j] += alpha * sum;
             }
         }
     } else if ((trans_a == GEMM_NOTRANS) && (trans_b == GEMM_TRANS)) {
@@ -27,10 +24,10 @@ void sgemm(GEMM_ORDER order, GEMM_TRANSPOSE trans_a, GEMM_TRANSPOSE trans_b,
             for (size_t j = 0; j < N; ++j) {
                 float sum = 0.0f;
                 for (size_t k = 0; k < K; ++k) {
-                    sum += a[i * K + k] * b[j * K + k];
+                    sum += a[i * lda + k] * b[j * ldb + k];
                 }
-                c[i * N + j] *= beta;
-                c[i * N + j] += alpha * sum;
+                c[i * ldc + j] *= beta;
+                c[i * ldc + j] += alpha * sum;
             }
         }
     } else if ((trans_a == GEMM_TRANS) && (trans_b == GEMM_TRANS)) {
@@ -38,10 +35,10 @@ void sgemm(GEMM_ORDER order, GEMM_TRANSPOSE trans_a, GEMM_TRANSPOSE trans_b,
             for (size_t j = 0; j < N; ++j) {
                 float sum = 0.0f;
                 for (size_t k = 0; k < K; ++k) {
-                    sum += a[k * M + i] * b[j * K + k];
+                    sum += a[k * lda + i] * b[j * ldb + k];
                 }
-                c[i * N + j] *= beta;
-                c[i * N + j] += alpha * sum;
+                c[i * ldc + j] *= beta;
+                c[i * ldc + j] += alpha * sum;
             }
         }
     } else {
@@ -49,10 +46,10 @@ void sgemm(GEMM_ORDER order, GEMM_TRANSPOSE trans_a, GEMM_TRANSPOSE trans_b,
             for (size_t j = 0; j < N; ++j) {
                 float sum = 0.0f;
                 for (size_t k = 0; k < K; ++k) {
-                    sum += a[i * K + k] * b[k * N + j];
+                    sum += a[i * lda + k] * b[k * ldb + j];
                 }
-                c[i * N + j] *= beta;
-                c[i * N + j] += alpha * sum;
+                c[i * ldc + j] *= beta;
+                c[i * ldc + j] += alpha * sum;
             }
         }
     }
