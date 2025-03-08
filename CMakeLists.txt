@@ -8,7 +8,7 @@ project(
 set(C_STANDARD 99)
 set(C_STANDARD_REQUIRED ON)
 
-add_compile_options(-Wall -Wextra -Wpedantic -Werror)
+add_compile_options(-O2 -Wall -Wextra -Wpedantic -Werror)
 
 add_executable(
     benchmark_test
@@ -25,14 +25,14 @@ target_include_directories(
 )
 
 add_executable(
-    verification
-    test/verification.c
+    verification_test
+    test/verification_test.c
     src/gemm.c
     src/matrix.c
 )
 
 target_include_directories(
-    verification
+    verification_test
     PRIVATE
     ${PROJECT_SOURCE_DIR}/include
 )

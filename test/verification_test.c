@@ -3,19 +3,24 @@
 #include "gemm.h"
 #include "matrix.h"
 
-void compare_matrix(const Matrix* a, const Matrix* b) {
-    size_t size = a->cols * a->rows;
+// Compare two matrices and return the number of different elements
+static size_t compare_matrix(const char* func_name, const Matrix* a,
+                             const Matrix* b) {
+    size_t n_diffs = 0;
 
+    size_t size = a->cols * a->rows;
     for (size_t i = 0; i < size; ++i) {
         if (a->data[i] != b->data[i]) {
-            printf("Diff. at (%ld, %ld): %f / %f\n", (i / a->cols),
-                   (i % b->cols), a->data[i], b->data[i]);
+            printf("%s: diff. at (%ld, %ld): %f / %f\n", func_name,
+                   (i / a->cols), (i % b->cols), a->data[i], b->data[i]);
+            n_diffs++;
         }
     }
+
+    return n_diffs;
 }
 
-void test_sgemm(void) {
-    printf("%s\n", __func__);
+static size_t test_sgemm(void) {
     // [[1, 2, 3],
     //  [4, 5, 6]]
     Matrix a = MAT_FROM_ARRAY(2, 3, ARRAY(1, 2, 3, 4, 5, 6));
@@ -39,11 +44,10 @@ void test_sgemm(void) {
     Matrix expected =
         MAT_FROM_ARRAY(2, 4, ARRAY(73, 82, 91, 100, 151, 178, 205, 232));
 
-    compare_matrix(&c, &expected);
+    return compare_matrix(__func__, &c, &expected);
 }
 
-void test_sgemm_trans_a(void) {
-    printf("%s\n", __func__);
+static size_t test_sgemm_trans_a(void) {
     // [[1, 4],
     //  [2, 5]
     //  [3, 6]]
@@ -68,11 +72,10 @@ void test_sgemm_trans_a(void) {
     Matrix expected =
         MAT_FROM_ARRAY(2, 4, ARRAY(73, 82, 91, 100, 151, 178, 205, 232));
 
-    compare_matrix(&c, &expected);
+    return compare_matrix(__func__, &c, &expected);
 }
 
-void test_sgemm_trans_b(void) {
-    printf("%s\n", __func__);
+static size_t test_sgemm_trans_b(void) {
     // [[1, 2, 3],
     //  [4, 5, 6]]
     Matrix a = MAT_FROM_ARRAY(2, 3, ARRAY(1, 2, 3, 4, 5, 6));
@@ -97,11 +100,10 @@ void test_sgemm_trans_b(void) {
     Matrix expected =
         MAT_FROM_ARRAY(2, 4, ARRAY(73, 82, 91, 100, 151, 178, 205, 232));
 
-    compare_matrix(&c, &expected);
+    return compare_matrix(__func__, &c, &expected);
 }
 
-void test_sgemm_trans_ab(void) {
-    printf("%s\n", __func__);
+static size_t test_sgemm_trans_ab(void) {
     // [[1, 4],
     //  [2, 5],
     //  [3, 6]]
@@ -127,11 +129,10 @@ void test_sgemm_trans_ab(void) {
     Matrix expected =
         MAT_FROM_ARRAY(2, 4, ARRAY(73, 82, 91, 100, 151, 178, 205, 232));
 
-    compare_matrix(&c, &expected);
+    return compare_matrix(__func__, &c, &expected);
 }
 
-void test_sgemm_lda(void) {
-    printf("%s\n", __func__);
+static size_t test_sgemm_lda(void) {
     // [[0, 1, 2, 3, 4],
     //  [3, 4, 5, 6, 7]]
     Matrix a = MAT_FROM_ARRAY(2, 5, ARRAY(0, 1, 2, 3, 4, 3, 4, 5, 6, 7));
@@ -155,11 +156,10 @@ void test_sgemm_lda(void) {
     Matrix expected =
         MAT_FROM_ARRAY(2, 4, ARRAY(73, 82, 91, 100, 151, 178, 205, 232));
 
-    compare_matrix(&c, &expected);
+    return compare_matrix(__func__, &c, &expected);
 }
 
-void test_sgemm_ldb(void) {
-    printf("%s\n", __func__);
+static size_t test_sgemm_ldb(void) {
     // [[1, 2, 3],
     //  [4, 5, 6]]
     Matrix a = MAT_FROM_ARRAY(2, 3, ARRAY(1, 2, 3, 4, 5, 6));
@@ -183,11 +183,10 @@ void test_sgemm_ldb(void) {
     Matrix expected =
         MAT_FROM_ARRAY(2, 4, ARRAY(73, 82, 91, 100, 151, 178, 205, 232));
 
-    compare_matrix(&c, &expected);
+    return compare_matrix(__func__, &c, &expected);
 }
 
-void test_sgemm_ldc(void) {
-    printf("%s\n", __func__);
+static size_t test_sgemm_ldc(void) {
     // [[1, 2, 3],
     //  [4, 5, 6]]
     Matrix a = MAT_FROM_ARRAY(2, 3, ARRAY(1, 2, 3, 4, 5, 6));
@@ -211,17 +210,23 @@ void test_sgemm_ldc(void) {
     Matrix expected = MAT_FROM_ARRAY(
         2, 6, ARRAY(0, 73, 82, 91, 100, 5, 4, 151, 178, 205, 232, 9));
 
-    compare_matrix(&c, &expected);
+    return compare_matrix(__func__, &c, &expected);
 }
 
 int main(void) {
-    test_sgemm();
-    test_sgemm_trans_a();
-    test_sgemm_trans_b();
-    test_sgemm_trans_ab();
-    test_sgemm_lda();
-    test_sgemm_ldb();
-    test_sgemm_ldc();
+    size_t n_diffs = 0;
+    n_diffs += test_sgemm();
+    n_diffs += test_sgemm_trans_a();
+    n_diffs += test_sgemm_trans_b();
+    n_diffs += test_sgemm_trans_ab();
+    n_diffs += test_sgemm_lda();
+    n_diffs += test_sgemm_ldb();
+    n_diffs += test_sgemm_ldc();
+
+    if (n_diffs > 0) {
+        // Test failed
+        return 1;
+    }
 
     return 0;
 }
