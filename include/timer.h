@@ -21,29 +21,28 @@ static inline double cvt2sec(struct timespec time) {
     return (double)(time.tv_sec * 1000000000 + time.tv_nsec) / 1000000000;
 }
 
-#define MEASURE_WALL_TIME(wall_time, func)            \
-    {                                                 \
-        struct timespec start, end;                   \
-        clock_gettime(CLOCK_MONOTONIC, &start);       \
-        (func);                                       \
-        clock_gettime(CLOCK_MONOTONIC, &end);         \
-        (wall_time) = get_elapsed_time(&start, &end); \
+#define MEASURE_WALL_TIME(wall_time, func)        \
+    {                                             \
+        struct timespec s_, e_;                   \
+        clock_gettime(CLOCK_MONOTONIC, &s_);      \
+        (func);                                   \
+        clock_gettime(CLOCK_MONOTONIC, &e_);      \
+        (wall_time) = get_elapsed_time(&s_, &e_); \
     }
 
-#define MEASURE_AVG_WALL_TIME(avg_wall_time, func, n)             \
-    {                                                             \
-        struct timespec start, end;                               \
-        clock_gettime(CLOCK_MONOTONIC, &start);                   \
-        for (int i = 0; i < (n); ++i) {                           \
-            (func);                                               \
-        }                                                         \
-        clock_gettime(CLOCK_MONOTONIC, &end);                     \
-        struct timespec elapsed = get_elapsed_time(&start, &end); \
-        unsigned long total_nsec =                                \
-            elapsed.tv_sec * 1000000000 + elapsed.tv_nsec;        \
-        total_nsec /= (n);                                        \
-        (avg_wall_time).tv_sec = total_nsec / 1000000000;         \
-        (avg_wall_time).tv_nsec = total_nsec % 1000000000;        \
+#define MEASURE_AVG_WALL_TIME(avg_wall_time, func, n)            \
+    {                                                            \
+        struct timespec s_, e_;                                  \
+        clock_gettime(CLOCK_MONOTONIC, &s_);                     \
+        for (int i_ = 0; i_ < (n); ++i_) {                       \
+            (func);                                              \
+        }                                                        \
+        clock_gettime(CLOCK_MONOTONIC, &e_);                     \
+        struct timespec d_ = get_elapsed_time(&s_, &e_);         \
+        unsigned long ns_ = d_.tv_sec * 1000000000 + d_.tv_nsec; \
+        ns_ /= (n);                                              \
+        (avg_wall_time).tv_sec = ns_ / 1000000000;               \
+        (avg_wall_time).tv_nsec = ns_ % 1000000000;              \
     }
 
 #endif
