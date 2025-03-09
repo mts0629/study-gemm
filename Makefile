@@ -6,7 +6,7 @@ format:
 	@clang-format-13 -i ./include/* ./src/* ./test/*
 
 build: format
-	@cmake -S . -B ./build
+	@cmake -S . -B ./build -DIMPL="$(IMPL)" # Specify implementation type 
 	@cmake --build ./build
 
 clean:

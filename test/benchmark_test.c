@@ -23,7 +23,8 @@ int main(void) {
               a.cols, 1.0, a.data, a.cols, b.data, b.cols, 1.0, c.data, c.cols),
         10);
 
-    printf("Elapsed: %lf[ms]\n", cvt2msec(elapsed));
+    // Elapsed time in ms
+    printf("%lf\n", cvt2msec(elapsed));
 
     return 0;
 }

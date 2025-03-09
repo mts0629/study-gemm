@@ -8,6 +8,11 @@ project(
 set(C_STANDARD 99)
 set(C_STANDARD_REQUIRED ON)
 
+# Macro to switch implementation
+if(IMPL STREQUAL "CHANGE_LOOP_ORDER")
+    add_compile_definitions(CHANGE_LOOP_ORDER)
+endif()
+
 add_compile_options(-O2 -Wall -Wextra -Wpedantic -Werror)
 
 add_executable(
