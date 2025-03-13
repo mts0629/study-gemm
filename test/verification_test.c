@@ -36,8 +36,8 @@ static size_t test_sgemm(void) {
     Matrix c = MAT_FROM_ARRAY(2, 4, ARRAY(1, 2, 3, 4, 5, 6, 7, 8));
 
     // c = 2.0 * a * b - 3.0 * c
-    sgemm(GEMM_ROW_MAJOR, GEMM_NOTRANS, GEMM_NOTRANS, a.rows, b.cols, a.cols,
-          2.0, a.data, a.cols, b.data, b.cols, -3.0, c.data, c.cols);
+    sgemm(GEMM_NOTRANS, GEMM_NOTRANS, a.rows, b.cols, a.cols, 2.0, a.data,
+          a.cols, b.data, b.cols, -3.0, c.data, c.cols);
 
     // [[73, 82, 91, 100],
     //  [151, 178, 205, 232]]
@@ -64,8 +64,8 @@ static size_t test_sgemm_trans_a(void) {
     Matrix c = MAT_FROM_ARRAY(2, 4, ARRAY(1, 2, 3, 4, 5, 6, 7, 8));
 
     // c = 2.0 * a^T * b - 3.0 * c
-    sgemm(GEMM_ROW_MAJOR, GEMM_TRANS, GEMM_NOTRANS, a.cols, b.cols, a.rows, 2.0,
-          a.data, a.cols, b.data, b.cols, -3.0, c.data, c.cols);
+    sgemm(GEMM_TRANS, GEMM_NOTRANS, a.cols, b.cols, a.rows, 2.0, a.data, a.cols,
+          b.data, b.cols, -3.0, c.data, c.cols);
 
     // [[73, 82, 91, 100],
     //  [151, 178, 205, 232]]
@@ -92,8 +92,8 @@ static size_t test_sgemm_trans_b(void) {
     Matrix c = MAT_FROM_ARRAY(2, 4, ARRAY(1, 2, 3, 4, 5, 6, 7, 8));
 
     // c = 2.0 * a * b^T - 3.0 * c
-    sgemm(GEMM_ROW_MAJOR, GEMM_NOTRANS, GEMM_TRANS, a.rows, b.rows, a.cols, 2.0,
-          a.data, a.cols, b.data, b.cols, -3.0, c.data, c.cols);
+    sgemm(GEMM_NOTRANS, GEMM_TRANS, a.rows, b.rows, a.cols, 2.0, a.data, a.cols,
+          b.data, b.cols, -3.0, c.data, c.cols);
 
     // [[73, 82, 91, 100],
     //  [151, 178, 205, 232]]
@@ -121,8 +121,8 @@ static size_t test_sgemm_trans_ab(void) {
     Matrix c = MAT_FROM_ARRAY(2, 4, ARRAY(1, 2, 3, 4, 5, 6, 7, 8));
 
     // c = 2.0 * a^T * b^T - 3.0 * c
-    sgemm(GEMM_ROW_MAJOR, GEMM_TRANS, GEMM_TRANS, a.cols, b.rows, a.rows, 2.0,
-          a.data, a.cols, b.data, b.cols, -3.0, c.data, c.cols);
+    sgemm(GEMM_TRANS, GEMM_TRANS, a.cols, b.rows, a.rows, 2.0, a.data, a.cols,
+          b.data, b.cols, -3.0, c.data, c.cols);
 
     // [[73, 82, 91, 100],
     //  [151, 178, 205, 232]]
@@ -148,8 +148,8 @@ static size_t test_sgemm_lda(void) {
     Matrix c = MAT_FROM_ARRAY(2, 4, ARRAY(1, 2, 3, 4, 5, 6, 7, 8));
 
     // c = 2.0 * a[:, 1:4] * b - 3.0 * c
-    sgemm(GEMM_ROW_MAJOR, GEMM_NOTRANS, GEMM_NOTRANS, a.rows, b.cols, 3, 2.0,
-          (a.data + 1), a.cols, b.data, b.cols, -3.0, c.data, c.cols);
+    sgemm(GEMM_NOTRANS, GEMM_NOTRANS, a.rows, b.cols, 3, 2.0, (a.data + 1),
+          a.cols, b.data, b.cols, -3.0, c.data, c.cols);
 
     // [[73, 82, 91, 100],
     //  [151, 178, 205, 232]]
@@ -175,8 +175,8 @@ static size_t test_sgemm_ldb(void) {
     Matrix c = MAT_FROM_ARRAY(2, 4, ARRAY(1, 2, 3, 4, 5, 6, 7, 8));
 
     // c = 2.0 * a * b[:, 1:5] - 3.0 * c
-    sgemm(GEMM_ROW_MAJOR, GEMM_NOTRANS, GEMM_NOTRANS, a.rows, 4, a.cols, 2.0,
-          a.data, a.cols, (b.data + 1), b.cols, -3.0, c.data, c.cols);
+    sgemm(GEMM_NOTRANS, GEMM_NOTRANS, a.rows, 4, a.cols, 2.0, a.data, a.cols,
+          (b.data + 1), b.cols, -3.0, c.data, c.cols);
 
     // [[73, 82, 91, 100],
     //  [151, 178, 205, 232]]
@@ -202,8 +202,8 @@ static size_t test_sgemm_ldc(void) {
     Matrix c = MAT_FROM_ARRAY(2, 6, ARRAY(0, 1, 2, 3, 4, 5, 4, 5, 6, 7, 8, 9));
 
     // c = 2.0 * a * b - 3.0 * c[:, 1:5]
-    sgemm(GEMM_ROW_MAJOR, GEMM_NOTRANS, GEMM_NOTRANS, a.rows, b.cols, a.cols,
-          2.0, a.data, a.cols, b.data, b.cols, -3.0, (c.data + 1), c.cols);
+    sgemm(GEMM_NOTRANS, GEMM_NOTRANS, a.rows, b.cols, a.cols, 2.0, a.data,
+          a.cols, b.data, b.cols, -3.0, (c.data + 1), c.cols);
 
     // [[0, 73, 82, 91, 100, 5],
     //  [4, 151, 178, 205, 232, 9]]

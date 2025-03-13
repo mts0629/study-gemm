@@ -19,8 +19,8 @@ int main(void) {
     struct timespec elapsed;
     MEASURE_AVG_WALL_TIME(
         elapsed,
-        sgemm(GEMM_ROW_MAJOR, GEMM_NOTRANS, GEMM_NOTRANS, a.rows, b.cols,
-              a.cols, 1.0, a.data, a.cols, b.data, b.cols, 1.0, c.data, c.cols),
+        sgemm(GEMM_NOTRANS, GEMM_NOTRANS, a.rows, b.cols, a.cols, 1.0, a.data,
+              a.cols, b.data, b.cols, 1.0, c.data, c.cols),
         10);
 
     // Elapsed time in ms

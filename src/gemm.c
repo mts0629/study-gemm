@@ -2,11 +2,10 @@
 
 #include <assert.h>
 
-void sgemm(GEMM_LAYOUT layout, GEMM_TRANSPOSE transa, GEMM_TRANSPOSE transb,
-           const size_t m, const size_t n, const size_t k, const float alpha,
-           const float* a, const size_t lda, const float* b, const size_t ldb,
-           const float beta, float* c, const size_t ldc) {
-    assert(layout == GEMM_ROW_MAJOR);
+void sgemm(GEMM_TRANSPOSE transa, GEMM_TRANSPOSE transb, const size_t m,
+           const size_t n, const size_t k, const float alpha, const float* a,
+           const size_t lda, const float* b, const size_t ldb, const float beta,
+           float* c, const size_t ldc) {
 #ifdef CHANGE_LOOP_ORDER
     if ((transa == GEMM_TRANS) && (transb == GEMM_NOTRANS)) {
         for (size_t i = 0; i < m; ++i) {
