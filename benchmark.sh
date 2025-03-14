@@ -4,6 +4,7 @@
 impls=(
     "NAIVE"
     "CHANGE_LOOP_ORDER"
+    "LOOP_UNROLLING"
 )
 
 # Measure elapsed time for each implementation type
