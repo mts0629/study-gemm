@@ -2,66 +2,46 @@
 
 #include <assert.h>
 
-void sgemm(GEMM_TRANSPOSE transa, GEMM_TRANSPOSE transb, const size_t m,
-           const size_t n, const size_t k, const float alpha, const float* a,
-           const size_t lda, const float* b, const size_t ldb, const float beta,
-           float* c, const size_t ldc) {
-#if defined(CACHE_BLOCKING)
+#if defined(CHANGE_LOOP_ORDER)
+static void sgemm_change_loop_order(GEMM_TRANSPOSE transa,
+                                    GEMM_TRANSPOSE transb, const size_t m,
+                                    const size_t n, const size_t k,
+                                    const float alpha, const float* a,
+                                    const size_t lda, const float* b,
+                                    const size_t ldb, const float beta,
+                                    float* c, const size_t ldc) {
     if ((transa == GEMM_TRANS) && (transb == GEMM_NOTRANS)) {
         for (size_t i = 0; i < m; ++i) {
             for (size_t j = 0; j < n; ++j) {
                 c[i * ldc + j] *= beta;
             }
-
-            for (size_t j = 0; j < n; j += 4) {
-                size_t j_max = (j + 4) > n ? n : j + 4;
-                for (size_t l = 0; l < k; l += 4) {
-                    size_t l_max = (l + 4) > k ? k : l + 4;
-                    for (size_t jj = j; jj < j_max; ++jj) {
-                        for (size_t ll = l; ll < l_max; ++ll) {
-                            c[i * ldc + jj] +=
-                                alpha * a[ll * lda + i] * b[ll * ldb + jj];
-                        }
-                    }
+            for (size_t l = 0; l < k; ++l) {
+                for (size_t j = 0; j < n; ++j) {
+                    c[i * ldc + j] += alpha * a[l * lda + i] * b[l * ldb + j];
                 }
             }
         }
     } else if ((transa == GEMM_NOTRANS) && (transb == GEMM_TRANS)) {
         for (size_t i = 0; i < m; ++i) {
             for (size_t j = 0; j < n; ++j) {
-                c[i * ldc + j] *= beta;
-            }
-
-            for (size_t j = 0; j < n; j += 4) {
-                size_t j_max = (j + 4) > n ? n : j + 4;
-                for (size_t l = 0; l < k; l += 4) {
-                    size_t l_max = (l + 4) > k ? k : l + 4;
-                    for (size_t jj = j; jj < j_max; ++jj) {
-                        for (size_t ll = l; ll < l_max; ++ll) {
-                            c[i * ldc + jj] +=
-                                alpha * a[i * lda + ll] * b[jj * ldb + ll];
-                        }
-                    }
+                float mac = 0.0f;
+                for (size_t l = 0; l < k; ++l) {
+                    mac += a[i * lda + l] * b[j * ldb + l];
                 }
+                c[i * ldc + j] *= beta;
+                c[i * ldc + j] += alpha * mac;
             }
         }
     } else if ((transa == GEMM_TRANS) && (transb == GEMM_TRANS)) {
+        // Cannot optimize by loop ordering
         for (size_t i = 0; i < m; ++i) {
             for (size_t j = 0; j < n; ++j) {
-                c[i * ldc + j] *= beta;
-            }
-
-            for (size_t j = 0; j < n; j += 4) {
-                size_t j_max = (j + 4) > n ? n : j + 4;
-                for (size_t l = 0; l < k; l += 4) {
-                    size_t l_max = (l + 4) > k ? k : l + 4;
-                    for (size_t jj = j; jj < j_max; ++jj) {
-                        for (size_t ll = l; ll < l_max; ++ll) {
-                            c[i * ldc + jj] +=
-                                alpha * a[ll * lda + i] * b[jj * ldb + ll];
-                        }
-                    }
+                float mac = 0.0f;
+                for (size_t l = 0; l < k; ++l) {
+                    mac += a[l * lda + i] * b[j * ldb + l];
                 }
+                c[i * ldc + j] *= beta;
+                c[i * ldc + j] += alpha * mac;
             }
         }
     } else {
@@ -69,22 +49,21 @@ void sgemm(GEMM_TRANSPOSE transa, GEMM_TRANSPOSE transb, const size_t m,
             for (size_t j = 0; j < n; ++j) {
                 c[i * ldc + j] *= beta;
             }
-
-            for (size_t j = 0; j < n; j += 4) {
-                size_t j_max = (j + 4) > n ? n : j + 4;
-                for (size_t l = 0; l < k; l += 4) {
-                    size_t l_max = (l + 4) > k ? k : l + 4;
-                    for (size_t jj = j; jj < j_max; ++jj) {
-                        for (size_t ll = l; ll < l_max; ++ll) {
-                            c[i * ldc + jj] +=
-                                alpha * a[i * lda + ll] * b[ll * ldb + jj];
-                        }
-                    }
+            for (size_t l = 0; l < k; ++l) {
+                for (size_t j = 0; j < n; ++j) {
+                    c[i * ldc + j] += alpha * a[i * lda + l] * b[l * ldb + j];
                 }
             }
         }
     }
+}
 #elif defined(LOOP_UNROLLING)
+static void sgemm_loop_unrolling(GEMM_TRANSPOSE transa, GEMM_TRANSPOSE transb,
+                                 const size_t m, const size_t n, const size_t k,
+                                 const float alpha, const float* a,
+                                 const size_t lda, const float* b,
+                                 const size_t ldb, const float beta, float* c,
+                                 const size_t ldc) {
     if ((transa == GEMM_TRANS) && (transb == GEMM_NOTRANS)) {
         for (size_t i = 0; i < m; ++i) {
             size_t j = 0;
@@ -198,39 +177,69 @@ void sgemm(GEMM_TRANSPOSE transa, GEMM_TRANSPOSE transb, const size_t m,
             }
         }
     }
-#elif defined(CHANGE_LOOP_ORDER)
+}
+#elif defined(CACHE_BLOCKING)
+static void sgemm_cache_blocking(GEMM_TRANSPOSE transa, GEMM_TRANSPOSE transb,
+                                 const size_t m, const size_t n, const size_t k,
+                                 const float alpha, const float* a,
+                                 const size_t lda, const float* b,
+                                 const size_t ldb, const float beta, float* c,
+                                 const size_t ldc) {
     if ((transa == GEMM_TRANS) && (transb == GEMM_NOTRANS)) {
         for (size_t i = 0; i < m; ++i) {
             for (size_t j = 0; j < n; ++j) {
                 c[i * ldc + j] *= beta;
             }
-            for (size_t l = 0; l < k; ++l) {
-                for (size_t j = 0; j < n; ++j) {
-                    c[i * ldc + j] += alpha * a[l * lda + i] * b[l * ldb + j];
+
+            for (size_t j = 0; j < n; j += 4) {
+                size_t j_max = (j + 4) > n ? n : j + 4;
+                for (size_t l = 0; l < k; l += 4) {
+                    size_t l_max = (l + 4) > k ? k : l + 4;
+                    for (size_t jj = j; jj < j_max; ++jj) {
+                        for (size_t ll = l; ll < l_max; ++ll) {
+                            c[i * ldc + jj] +=
+                                alpha * a[ll * lda + i] * b[ll * ldb + jj];
+                        }
+                    }
                 }
             }
         }
     } else if ((transa == GEMM_NOTRANS) && (transb == GEMM_TRANS)) {
         for (size_t i = 0; i < m; ++i) {
             for (size_t j = 0; j < n; ++j) {
-                float mac = 0.0f;
-                for (size_t l = 0; l < k; ++l) {
-                    mac += a[i * lda + l] * b[j * ldb + l];
-                }
                 c[i * ldc + j] *= beta;
-                c[i * ldc + j] += alpha * mac;
+            }
+
+            for (size_t j = 0; j < n; j += 4) {
+                size_t j_max = (j + 4) > n ? n : j + 4;
+                for (size_t l = 0; l < k; l += 4) {
+                    size_t l_max = (l + 4) > k ? k : l + 4;
+                    for (size_t jj = j; jj < j_max; ++jj) {
+                        for (size_t ll = l; ll < l_max; ++ll) {
+                            c[i * ldc + jj] +=
+                                alpha * a[i * lda + ll] * b[jj * ldb + ll];
+                        }
+                    }
+                }
             }
         }
     } else if ((transa == GEMM_TRANS) && (transb == GEMM_TRANS)) {
-        // Cannot optimize by loop ordering
         for (size_t i = 0; i < m; ++i) {
             for (size_t j = 0; j < n; ++j) {
-                float mac = 0.0f;
-                for (size_t l = 0; l < k; ++l) {
-                    mac += a[l * lda + i] * b[j * ldb + l];
-                }
                 c[i * ldc + j] *= beta;
-                c[i * ldc + j] += alpha * mac;
+            }
+
+            for (size_t j = 0; j < n; j += 4) {
+                size_t j_max = (j + 4) > n ? n : j + 4;
+                for (size_t l = 0; l < k; l += 4) {
+                    size_t l_max = (l + 4) > k ? k : l + 4;
+                    for (size_t jj = j; jj < j_max; ++jj) {
+                        for (size_t ll = l; ll < l_max; ++ll) {
+                            c[i * ldc + jj] +=
+                                alpha * a[ll * lda + i] * b[jj * ldb + ll];
+                        }
+                    }
+                }
             }
         }
     } else {
@@ -238,14 +247,28 @@ void sgemm(GEMM_TRANSPOSE transa, GEMM_TRANSPOSE transb, const size_t m,
             for (size_t j = 0; j < n; ++j) {
                 c[i * ldc + j] *= beta;
             }
-            for (size_t l = 0; l < k; ++l) {
-                for (size_t j = 0; j < n; ++j) {
-                    c[i * ldc + j] += alpha * a[i * lda + l] * b[l * ldb + j];
+
+            for (size_t j = 0; j < n; j += 4) {
+                size_t j_max = (j + 4) > n ? n : j + 4;
+                for (size_t l = 0; l < k; l += 4) {
+                    size_t l_max = (l + 4) > k ? k : l + 4;
+                    for (size_t jj = j; jj < j_max; ++jj) {
+                        for (size_t ll = l; ll < l_max; ++ll) {
+                            c[i * ldc + jj] +=
+                                alpha * a[i * lda + ll] * b[ll * ldb + jj];
+                        }
+                    }
                 }
             }
         }
     }
+}
 #else
+static void sgemm_naive(GEMM_TRANSPOSE transa, GEMM_TRANSPOSE transb,
+                        const size_t m, const size_t n, const size_t k,
+                        const float alpha, const float* a, const size_t lda,
+                        const float* b, const size_t ldb, const float beta,
+                        float* c, const size_t ldc) {
     if ((transa == GEMM_TRANS) && (transb == GEMM_NOTRANS)) {
         for (size_t i = 0; i < m; ++i) {
             for (size_t j = 0; j < n; ++j) {
@@ -291,5 +314,23 @@ void sgemm(GEMM_TRANSPOSE transa, GEMM_TRANSPOSE transb, const size_t m,
             }
         }
     }
+}
+#endif
+
+void sgemm(GEMM_TRANSPOSE transa, GEMM_TRANSPOSE transb, const size_t m,
+           const size_t n, const size_t k, const float alpha, const float* a,
+           const size_t lda, const float* b, const size_t ldb, const float beta,
+           float* c, const size_t ldc) {
+#if defined(CHANGE_LOOP_ORDER)
+    sgemm_change_loop_order(transa, transb, m, n, k, alpha, a, lda, b, ldb,
+                            beta, c, ldc);
+#elif defined(LOOP_UNROLLING)
+    sgemm_loop_unrolling(transa, transb, m, n, k, alpha, a, lda, b, ldb, beta,
+                         c, ldc);
+#elif defined(CACHE_BLOCKING)
+    sgemm_cache_blocking(transa, transb, m, n, k, alpha, a, lda, b, ldb, beta,
+                         c, ldc);
+#else
+    sgemm_naive(transa, transb, m, n, k, alpha, a, lda, b, ldb, beta, c, ldc);
 #endif
 }
