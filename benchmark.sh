@@ -9,6 +9,7 @@ impls=(
 )
 
 # Measure elapsed time for each implementation type
+echo "Impl.,AxB[ms],(A^T)xB[ms],Ax(B^T)[ms],(A^T)x(B^T)[ms]"
 for impl in ${impls[@]}; do
     make build IMPL="${impl}" >> /dev/null
 
