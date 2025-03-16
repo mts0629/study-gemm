@@ -179,6 +179,7 @@ static void sgemm_loop_unrolling(GEMM_TRANSPOSE transa, GEMM_TRANSPOSE transb,
     }
 }
 #elif defined(CACHE_BLOCKING)
+#define BLOCK_SIZE 4
 static void sgemm_cache_blocking(GEMM_TRANSPOSE transa, GEMM_TRANSPOSE transb,
                                  const size_t m, const size_t n, const size_t k,
                                  const float alpha, const float* a,
@@ -191,10 +192,10 @@ static void sgemm_cache_blocking(GEMM_TRANSPOSE transa, GEMM_TRANSPOSE transb,
                 c[i * ldc + j] *= beta;
             }
 
-            for (size_t j = 0; j < n; j += 4) {
-                size_t j_max = (j + 4) > n ? n : j + 4;
-                for (size_t l = 0; l < k; l += 4) {
-                    size_t l_max = (l + 4) > k ? k : l + 4;
+            for (size_t j = 0; j < n; j += BLOCK_SIZE) {
+                size_t j_max = (j + BLOCK_SIZE) > n ? n : j + BLOCK_SIZE;
+                for (size_t l = 0; l < k; l += BLOCK_SIZE) {
+                    size_t l_max = (l + BLOCK_SIZE) > k ? k : l + BLOCK_SIZE;
                     for (size_t jj = j; jj < j_max; ++jj) {
                         for (size_t ll = l; ll < l_max; ++ll) {
                             c[i * ldc + jj] +=
@@ -210,10 +211,10 @@ static void sgemm_cache_blocking(GEMM_TRANSPOSE transa, GEMM_TRANSPOSE transb,
                 c[i * ldc + j] *= beta;
             }
 
-            for (size_t j = 0; j < n; j += 4) {
-                size_t j_max = (j + 4) > n ? n : j + 4;
-                for (size_t l = 0; l < k; l += 4) {
-                    size_t l_max = (l + 4) > k ? k : l + 4;
+            for (size_t j = 0; j < n; j += BLOCK_SIZE) {
+                size_t j_max = (j + BLOCK_SIZE) > n ? n : j + BLOCK_SIZE;
+                for (size_t l = 0; l < k; l += BLOCK_SIZE) {
+                    size_t l_max = (l + BLOCK_SIZE) > k ? k : l + BLOCK_SIZE;
                     for (size_t jj = j; jj < j_max; ++jj) {
                         for (size_t ll = l; ll < l_max; ++ll) {
                             c[i * ldc + jj] +=
@@ -229,10 +230,10 @@ static void sgemm_cache_blocking(GEMM_TRANSPOSE transa, GEMM_TRANSPOSE transb,
                 c[i * ldc + j] *= beta;
             }
 
-            for (size_t j = 0; j < n; j += 4) {
-                size_t j_max = (j + 4) > n ? n : j + 4;
-                for (size_t l = 0; l < k; l += 4) {
-                    size_t l_max = (l + 4) > k ? k : l + 4;
+            for (size_t j = 0; j < n; j += BLOCK_SIZE) {
+                size_t j_max = (j + BLOCK_SIZE) > n ? n : j + BLOCK_SIZE;
+                for (size_t l = 0; l < k; l += BLOCK_SIZE) {
+                    size_t l_max = (l + BLOCK_SIZE) > k ? k : l + BLOCK_SIZE;
                     for (size_t jj = j; jj < j_max; ++jj) {
                         for (size_t ll = l; ll < l_max; ++ll) {
                             c[i * ldc + jj] +=
@@ -248,10 +249,10 @@ static void sgemm_cache_blocking(GEMM_TRANSPOSE transa, GEMM_TRANSPOSE transb,
                 c[i * ldc + j] *= beta;
             }
 
-            for (size_t j = 0; j < n; j += 4) {
-                size_t j_max = (j + 4) > n ? n : j + 4;
-                for (size_t l = 0; l < k; l += 4) {
-                    size_t l_max = (l + 4) > k ? k : l + 4;
+            for (size_t j = 0; j < n; j += BLOCK_SIZE) {
+                size_t j_max = (j + BLOCK_SIZE) > n ? n : j + BLOCK_SIZE;
+                for (size_t l = 0; l < k; l += BLOCK_SIZE) {
+                    size_t l_max = (l + BLOCK_SIZE) > k ? k : l + BLOCK_SIZE;
                     for (size_t jj = j; jj < j_max; ++jj) {
                         for (size_t ll = l; ll < l_max; ++ll) {
                             c[i * ldc + jj] +=
