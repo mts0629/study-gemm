@@ -5,6 +5,7 @@ project(
     LANGUAGES C
 )
 
+set(CMAKE_C_COMPILER gcc)
 set(C_STANDARD 99)
 set(C_STANDARD_REQUIRED ON)
 
@@ -15,16 +16,20 @@ elseif(IMPL STREQUAL "LOOP_UNROLLING")
     add_compile_definitions(LOOP_UNROLLING)
 elseif(IMPL STREQUAL "CACHE_BLOCKING")
     add_compile_definitions(CACHE_BLOCKING)
+else()
+    # Naive implementation
+    set(IMPL "NAIVE")
 endif()
 
 add_compile_options(-O2 -Wall -Wextra -Wpedantic -Werror)
 
+# Benchmark test
 add_executable(
     benchmark_test
-    test/benchmark_test.c
-    src/gemm.c
-    src/matrix.c
-    src/timer.c
+    ${PROJECT_SOURCE_DIR}/test/benchmark_test.c
+    ${PROJECT_SOURCE_DIR}/src/gemm.c
+    ${PROJECT_SOURCE_DIR}/src/matrix.c
+    ${PROJECT_SOURCE_DIR}/src/timer.c
 )
 
 target_include_directories(
@@ -33,15 +38,27 @@ target_include_directories(
     ${PROJECT_SOURCE_DIR}/include
 )
 
+# Verification test
 add_executable(
     verification_test
-    test/verification_test.c
-    src/gemm.c
-    src/matrix.c
+    ${PROJECT_SOURCE_DIR}/test/verification_test.c
+    ${PROJECT_SOURCE_DIR}/src/gemm.c
+    ${PROJECT_SOURCE_DIR}/src/matrix.c
 )
 
 target_include_directories(
     verification_test
     PRIVATE
     ${PROJECT_SOURCE_DIR}/include
+)
+
+# Get assembly output of gemm implementation
+# Get properties
+get_directory_property(OPTS COMPILE_OPTIONS)
+get_directory_property(DEF COMPILE_DEFINITIONS)
+get_target_property(INCDIR benchmark_test INCLUDE_DIRECTORIES)
+
+add_custom_target(
+    assembly
+    COMMAND ${CMAKE_C_COMPILER} ${OPTS} -S -g -I${INCDIR} -D${DEF} ${PROJECT_SOURCE_DIR}/src/gemm.c -o gemm_${IMPL}.s
 )
