@@ -16,12 +16,18 @@ elseif(IMPL STREQUAL "LOOP_UNROLLING")
     add_compile_definitions(LOOP_UNROLLING)
 elseif(IMPL STREQUAL "CACHE_BLOCKING")
     add_compile_definitions(CACHE_BLOCKING)
+elseif(IMPL STREQUAL "OPENMP")
+    add_compile_definitions(OPENMP)
 else()
     # Naive implementation
     set(IMPL "NAIVE")
 endif()
 
 add_compile_options(-O2 -Wall -Wextra -Wpedantic -Werror)
+if(IMPL STREQUAL "OPENMP")
+    add_compile_options(-fopenmp)
+    link_libraries(-lgomp)
+endif()
 
 # Benchmark test
 add_executable(

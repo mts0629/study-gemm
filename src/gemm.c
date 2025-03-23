@@ -1,6 +1,9 @@
 #include "gemm.h"
 
 #include <assert.h>
+#ifdef OPENMP
+#include "omp.h"
+#endif
 
 #if defined(CHANGE_LOOP_ORDER)
 static void sgemm_change_loop_order(GEMM_TRANSPOSE transa,
@@ -271,6 +274,9 @@ static void sgemm_naive(GEMM_TRANSPOSE transa, GEMM_TRANSPOSE transb,
                         const float* b, const size_t ldb, const float beta,
                         float* c, const size_t ldc) {
     if ((transa == GEMM_TRANS) && (transb == GEMM_NOTRANS)) {
+#ifdef OPENMP
+#pragma omp parallel for
+#endif
         for (size_t i = 0; i < m; ++i) {
             for (size_t j = 0; j < n; ++j) {
                 float mac = 0.0f;
@@ -282,6 +288,9 @@ static void sgemm_naive(GEMM_TRANSPOSE transa, GEMM_TRANSPOSE transb,
             }
         }
     } else if ((transa == GEMM_NOTRANS) && (transb == GEMM_TRANS)) {
+#ifdef OPENMP
+#pragma omp parallel for
+#endif
         for (size_t i = 0; i < m; ++i) {
             for (size_t j = 0; j < n; ++j) {
                 float mac = 0.0f;
@@ -293,6 +302,9 @@ static void sgemm_naive(GEMM_TRANSPOSE transa, GEMM_TRANSPOSE transb,
             }
         }
     } else if ((transa == GEMM_TRANS) && (transb == GEMM_TRANS)) {
+#ifdef OPENMP
+#pragma omp parallel for
+#endif
         for (size_t i = 0; i < m; ++i) {
             for (size_t j = 0; j < n; ++j) {
                 float mac = 0.0f;
@@ -304,6 +316,9 @@ static void sgemm_naive(GEMM_TRANSPOSE transa, GEMM_TRANSPOSE transb,
             }
         }
     } else {
+#ifdef OPENMP
+#pragma omp parallel for
+#endif
         for (size_t i = 0; i < m; ++i) {
             for (size_t j = 0; j < n; ++j) {
                 float mac = 0.0f;

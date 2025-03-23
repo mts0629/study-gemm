@@ -6,6 +6,7 @@ impls=(
     "CHANGE_LOOP_ORDER"
     "LOOP_UNROLLING"
     "CACHE_BLOCKING"
+    "OPENMP"
 )
 
 # Measure elapsed time for each implementation type
