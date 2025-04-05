@@ -28,7 +28,7 @@ typedef struct Matrix {
 // Set a seed for PRNG
 void rand_seed(const unsigned int seed);
 
-// Randomize matrix elements
+// Randomize matrix elements by [-1, 1]
 void mat_rand(const Matrix* mat);
 
 // Print a matrix
