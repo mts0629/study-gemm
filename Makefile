@@ -3,7 +3,7 @@
 all: build
 
 format:
-	@clang-format-13 -i ./include/* ./src/* ./test/*
+	@clang-format -i ./include/* ./src/* ./test/*
 
 config: format
 	@cmake -S . -B ./build -DIMPL="$(IMPL)" # Specify implementation type 
