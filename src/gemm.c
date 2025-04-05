@@ -6,6 +6,7 @@
 #endif
 
 #if defined(CHANGE_LOOP_ORDER)
+// Change loop order to improve cache hit ratio in the innermost loop
 static void sgemm_change_loop_order(GEMM_TRANSPOSE transa,
                                     GEMM_TRANSPOSE transb, const size_t m,
                                     const size_t n, const size_t k,
@@ -61,6 +62,7 @@ static void sgemm_change_loop_order(GEMM_TRANSPOSE transa,
     }
 }
 #elif defined(LOOP_UNROLLING)
+// Unroll the innermost loop
 static void sgemm_loop_unrolling(GEMM_TRANSPOSE transa, GEMM_TRANSPOSE transb,
                                  const size_t m, const size_t n, const size_t k,
                                  const float alpha, const float* a,
@@ -183,6 +185,8 @@ static void sgemm_loop_unrolling(GEMM_TRANSPOSE transa, GEMM_TRANSPOSE transb,
 }
 #elif defined(CACHE_BLOCKING)
 #define BLOCK_SIZE 4
+// Cache blocking,
+// split process into small blocks to improve cache hit ratio
 static void sgemm_cache_blocking(GEMM_TRANSPOSE transa, GEMM_TRANSPOSE transb,
                                  const size_t m, const size_t n, const size_t k,
                                  const float alpha, const float* a,
@@ -268,6 +272,7 @@ static void sgemm_cache_blocking(GEMM_TRANSPOSE transa, GEMM_TRANSPOSE transb,
     }
 }
 #else
+// Naive implementation
 static void sgemm_naive(GEMM_TRANSPOSE transa, GEMM_TRANSPOSE transb,
                         const size_t m, const size_t n, const size_t k,
                         const float alpha, const float* a, const size_t lda,

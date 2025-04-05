@@ -3,24 +3,30 @@
 
 #include <sys/time.h>
 
+// Get an elapsed time between 2 time stamps
 struct timespec get_elapsed_time(struct timespec* start, struct timespec* end);
 
+// Convert the elapsed time to a nanosecond value
 static inline long cvt2nsec(struct timespec time) {
     return time.tv_sec * 1000000000 + time.tv_nsec;
 }
 
+// Convert the elapsed time to a microsecond value
 static inline double cvt2usec(struct timespec time) {
     return (double)(time.tv_sec * 1000000000 + time.tv_nsec) / 1000;
 }
 
+// Convert the elapsed time to a millisecond value
 static inline double cvt2msec(struct timespec time) {
     return (double)(time.tv_sec * 1000000000 + time.tv_nsec) / 1000000;
 }
 
+// Convert the elapsed time to a second value
 static inline double cvt2sec(struct timespec time) {
     return (double)(time.tv_sec * 1000000000 + time.tv_nsec) / 1000000000;
 }
 
+// Measure a wall time of a function
 #define MEASURE_WALL_TIME(wall_time, func)        \
     {                                             \
         struct timespec s_, e_;                   \
@@ -30,6 +36,7 @@ static inline double cvt2sec(struct timespec time) {
         (wall_time) = get_elapsed_time(&s_, &e_); \
     }
 
+// Measure a wall time of a function, averaged over N
 #define MEASURE_AVG_WALL_TIME(avg_wall_time, func, n)            \
     {                                                            \
         struct timespec s_, e_;                                  \

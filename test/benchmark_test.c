@@ -18,10 +18,10 @@ int main(void) {
     rand_seed((unsigned)time(NULL));
 
     // Initialize matrices
-    mat_rand_norm(&a);
-    mat_rand_norm(&ta);
-    mat_rand_norm(&b);
-    mat_rand_norm(&tb);
+    mat_rand(&a);
+    mat_rand(&ta);
+    mat_rand(&b);
+    mat_rand(&tb);
 
     // Normal GEMM, AxB
     double ms = 0.0;
