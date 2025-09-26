@@ -21,6 +21,7 @@ elseif(IMPL STREQUAL "OPENMP")
 else()
     # Naive implementation
     set(IMPL "NAIVE")
+    add_compile_definitions(NAIVE)
 endif()
 
 add_compile_options(-O2 -Wall -Wextra -Wpedantic -Werror)
